@@ -164,4 +164,67 @@
             // Controles de cámara
             controls = new THREE.OrbitControls(camera, renderer.domElement);
             controls.enableDamping = true;
-            controls.maxPolarAngle = Math
+            controls.maxPolarAngle = Math.PI / 2; // evita que la cámara pase por debajo del suelo
+            controls.target.set(0, 5, 0);
+
+            // Luz básica para ver la escena (puedes ajustar/consolidar más adelante)
+            const hemi = new THREE.HemisphereLight(0xffffff, 0x444444, 1.0);
+            hemi.position.set(0, 100, 0);
+            scene.add(hemi);
+
+            const dir = new THREE.DirectionalLight(0xffffff, 0.8);
+            dir.position.set(-10, 30, 10);
+            dir.castShadow = true;
+            scene.add(dir);
+
+            // Ejemplo simple de "suelo" / plano para tener referencia visual
+            const groundMat = new THREE.MeshStandardMaterial({ color: 0x2e8b57 });
+            const ground = new THREE.Mesh(new THREE.PlaneGeometry(200, 200), groundMat);
+            ground.rotation.x = -Math.PI / 2;
+            ground.receiveShadow = true;
+            scene.add(ground);
+
+            // (Opcional) inicializar ocean u otros elementos aquí y asignar a la variable `ocean`
+            // ocean = ...
+
+            // Asegurarse de manejar el tamaño si la ventana cambia
+            window.addEventListener('resize', onWindowResize, false);
+        }
+
+        // --- BUCLE DE ANIMACIÓN ---
+        function animate() {
+            requestAnimationFrame(animate);
+
+            if (controls && controls.update) controls.update();
+
+            if (renderer && scene && camera) {
+                renderer.render(scene, camera);
+            }
+        }
+
+        // --- INICIAR JUEGO (llamado desde el botón) ---
+        function startGame() {
+            const intro = document.getElementById('intro-screen');
+            const info = document.getElementById('info');
+
+            intro.classList.add('hidden');
+            intro.setAttribute('aria-hidden', 'true');
+            info.classList.add('visible');
+
+            if (!gameStarted) {
+                initGame();
+                animate();
+                gameStarted = true;
+            }
+        }
+
+        // --- MANEJADOR DE CAMBIO DE TAMAÑO DE VENTANA ---
+        function onWindowResize() {
+            if (!camera || !renderer) return;
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+    </script>
+</body>
+</html>
